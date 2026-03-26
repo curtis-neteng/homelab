@@ -1,0 +1,461 @@
+! ============================================================
+! Device: R3 (Cisco 2811) - HSRP Standby / BGP AS3
+! Lab: Home Lab Network Engineering
+! Owner: Curtis | CCNA
+! Date: March 2026
+!
+! NOTE: This config has been sanitized for public repository.
+! Credentials, SNMP community strings, and WAN IPs have been
+! replaced with <REDACTED> or x.x.x.x placeholders.
+! ============================================================
+!
+R3#
+
+Building configuration...
+
+Current configuration : 3949 bytes
+
+!
+
+! Last configuration change at 01:00:34 UTC Tue Mar 24 2026 by curtis
+
+! NVRAM config last updated at 01:00:37 UTC Tue Mar 24 2026 by curtis
+
+! NVRAM config last updated at 01:00:37 UTC Tue Mar 24 2026 by curtis
+
+version 15.1
+
+service timestamps debug datetime msec
+
+service timestamps log datetime msec
+
+service password-encryption
+
+!
+
+hostname R3
+
+!
+
+boot-start-marker
+
+boot-end-marker
+
+!
+
+!
+
+logging console informational
+
+enable secret 5 <REDACTED-HASH>
+
+!
+
+aaa new-model
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+aaa session-id common
+
+!
+
+!
+
+dot11 syslog
+
+no ip source-route
+
+!
+
+!
+
+ip cef
+
+!
+
+!
+
+!
+
+no ip domain lookup
+
+ip domain name homelab.local
+
+ipv6 unicast-routing
+
+ipv6 cef
+
+!
+
+multilink bundle-name authenticated
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+voice-card 0
+
+!
+
+crypto pki token default removal timeout 0
+
+!
+
+!
+
+!
+
+!
+
+license udi pid CISCO2811 sn FCZ14067158
+
+username curtis privilege 15 secret 5 <REDACTED-HASH>
+
+!
+
+redundancy
+
+!
+
+!
+
+ip ssh time-out 60
+
+ip ssh version 2
+
+!
+
+!
+
+crypto isakmp policy 10
+
+encr aes 256
+
+hash md5
+
+authentication pre-share
+
+crypto isakmp key YourStrongKey address 0.0.0.0 0.0.0.0
+
+!
+
+!
+
+crypto ipsec transform-set R3-Transform esp-aes 256
+
+!
+
+crypto ipsec profile DMVPN
+
+set transform-set R3-Transform
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+interface Loopback0
+
+ip address 3.3.3.3 255.255.255.255
+
+!
+
+interface Loopback1
+
+ip address 172.16.3.1 255.255.255.0
+
+!
+
+interface Tunnel0
+
+ip address 10.10.10.3 255.255.255.0
+
+no ip redirects
+
+ip mtu 1416
+
+ip nhrp map 10.10.10.1 1.1.1.1
+
+ip nhrp map multicast 1.1.1.1
+
+ip nhrp network-id 1
+
+ip nhrp nhs 10.10.10.1
+
+tunnel source Loopback0
+
+tunnel mode gre multipoint
+
+tunnel protection ipsec profile DMVPN
+
+!
+
+interface FastEthernet0/0
+
+description UPLINK-TO-CORE-SW-01
+
+ip address 192.168.168.3 255.255.255.0
+
+standby 1 ip 192.168.168.254
+
+standby 1 preempt
+
+standby 1 name GATEWAY-HSRP
+
+duplex auto
+
+speed auto
+
+!
+
+interface FastEthernet0/1
+
+description SW1 Fa0/21
+
+ip address 172.31.101.6 255.255.255.0
+
+duplex auto
+
+speed auto
+
+!
+
+interface FastEthernet0/1.1
+
+description R2-R3-R4 Spoke
+
+encapsulation dot1Q 501
+
+ip address 10.1.1.13 255.255.255.0
+
+!
+
+interface FastEthernet0/1.2
+
+description R1 Hub
+
+encapsulation dot1Q 500
+
+ip address 10.0.0.13 255.255.255.0
+
+shutdown
+
+!
+
+interface Serial0/0/0
+
+description R1 S0/0/1
+
+ip address 10.1.13.2 255.255.255.252
+
+ipv6 address autoconfig
+
+ipv6 rip RIPng enable
+
+clock rate 125000
+
+!
+
+interface Serial0/0/1
+
+description R2 S0/0/1
+
+no ip address
+
+ipv6 address autoconfig
+
+clock rate 125000
+
+!
+
+!
+
+router eigrp 90
+
+network 10.1.13.0 0.0.0.3
+
+network 10.10.10.0 0.0.0.255
+
+network 172.16.3.0 0.0.0.255
+
+network 192.168.168.0
+
+!
+
+router ospf 1
+
+router-id 3.3.3.3
+
+passive-interface FastEthernet0/0
+
+network 3.3.3.3 0.0.0.0 area 0
+
+network 10.1.13.0 0.0.0.3 area 0
+
+!
+
+router bgp 3
+
+bgp router-id 3.3.3.3
+
+bgp log-neighbor-changes
+
+network 3.3.3.3 mask 255.255.255.255
+
+network 10.1.13.0 mask 255.255.255.252
+
+network 192.168.168.0
+
+neighbor 10.1.13.1 remote-as 1
+
+neighbor 192.168.168.2 remote-as 1
+
+!
+
+ip forward-protocol nd
+
+no ip http server
+
+no ip http secure-server
+
+!
+
+!
+
+ip route 3.3.3.3 255.255.255.255 192.168.168.2
+
+ip route 10.1.13.0 255.255.255.252 192.168.168.2
+
+ip route 10.20.0.0 255.255.255.0 192.168.168.1
+
+ip route 16.16.16.16 255.255.255.255 10.1.1.1
+
+!
+
+ipv6 router rip RIPng
+
+!
+
+!
+
+!
+
+!
+
+!
+
+snmp-server community <REDACTED> RO
+
+snmp-server location Home Lab
+
+snmp-server contact curtis@homelab.local
+
+!
+
+!
+
+!
+
+!
+
+control-plane
+
+!
+
+!
+
+!
+
+!
+
+mgcp profile default
+
+!
+
+!
+
+!
+
+!
+
+!
+
+banner motd ^C
+
+********************************************************************
+
+* AUTHORIZED ACCESS ONLY *
+
+* Unauthorized access is prohibited and monitored. *
+
+* Disconnect immediately if you are not an authorized user. *
+
+********************************************************************
+
+^C
+
+!
+
+line con 0
+
+exec-timeout 5 0
+
+logging synchronous
+
+line aux 0
+
+line vty 0 4
+
+exec-timeout 60 0
+
+logging synchronous
+
+transport input ssh
+
+!
+
+scheduler allocate 20000 1000
+
+ntp server 192.168.168.168
+
+end
+

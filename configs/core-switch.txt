@@ -1,0 +1,937 @@
+! ============================================================
+! Device: Core Switch (Cisco WS-C3750X-48P)
+! Lab: Home Lab Network Engineering
+! Owner: Curtis | CCNA
+! Date: March 2026
+!
+! NOTE: This config has been sanitized for public repository.
+! Credentials, SNMP community strings, and WAN IPs have been
+! replaced with <REDACTED> or x.x.x.x placeholders.
+! ============================================================
+!
+core-sw-01# sho run
+
+Building configuration...
+
+Current configuration : 12107 bytes
+
+!
+
+! Last configuration change at 21:10:28 UTC Mon Mar 23 2026 by curtis
+
+! NVRAM config last updated at 21:10:30 UTC Mon Mar 23 2026 by curtis
+
+!
+
+version 15.2
+
+no service pad
+
+service timestamps debug datetime msec
+
+service timestamps log datetime msec
+
+service password-encryption
+
+!
+
+hostname core-sw-01
+
+!
+
+boot-start-marker
+
+boot-end-marker
+
+!
+
+enable secret 5 <REDACTED-HASH>
+
+!
+
+username curtis privilege 15 secret 5 <REDACTED-HASH>
+
+aaa new-model
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+aaa session-id common
+
+switch 1 provision ws-c3750x-48p
+
+system mtu routing 1500
+
+!
+
+!
+
+!
+
+!
+
+ip routing
+
+ip dhcp excluded-address 10.30.0.1 10.30.0.10
+
+ip dhcp excluded-address 10.20.0.1 10.20.0.10
+
+ip dhcp excluded-address 10.40.0.1 10.40.0.10
+
+!
+
+ip dhcp pool VLAN30-CAMERAS
+
+network 10.30.0.0 255.255.255.0
+
+default-router 10.30.0.1
+
+dns-server 8.8.8.8 8.8.4.4
+
+lease 0 8
+
+!
+
+ip dhcp pool VLAN20-SERVERS
+
+network 10.20.0.0 255.255.255.0
+
+default-router 10.20.0.1
+
+dns-server 8.8.8.8 8.8.4.4
+
+!
+
+ip dhcp pool VLAN40-STORAGE
+
+network 10.40.0.0 255.255.255.0
+
+default-router 10.40.0.1
+
+dns-server 8.8.8.8 8.8.4.4
+
+!
+
+ip dhcp pool NVR-RESERVATION
+
+host 10.30.0.20 255.255.255.0
+
+client-identifier 01ec.71db.333a.46
+
+default-router 10.30.0.1
+
+dns-server 8.8.8.8 8.8.4.4
+
+!
+
+!
+
+no ip domain-lookup
+
+ip domain-name curtis.com
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+crypto pki trustpoint TP-self-signed-3683159040
+
+enrollment selfsigned
+
+subject-name cn=IOS-Self-Signed-Certificate-3683159040
+
+revocation-check none
+
+rsakeypair TP-self-signed-3683159040
+
+!
+
+!
+
+! SSH crypto certificate - removed for public repo
+
+!
+
+!
+
+!
+
+!
+
+spanning-tree mode pvst
+
+spanning-tree extend system-id
+
+!
+
+!
+
+!
+
+!
+
+vlan internal allocation policy ascending
+
+!
+
+lldp timer 50
+
+lldp holdtime 180
+
+lldp run
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+interface Port-channel2
+
+description NAS2
+
+switchport trunk allowed vlan 168
+
+switchport trunk encapsulation dot1q
+
+switchport trunk native vlan 168
+
+switchport mode trunk
+
+!
+
+interface FastEthernet0
+
+no ip address
+
+no ip route-cache
+
+!
+
+interface GigabitEthernet1/0/1
+
+description UPLINK-TO-EDGE-RTR-Gi0/1
+
+switchport trunk allowed vlan 10,20,30,40,168
+
+switchport trunk encapsulation dot1q
+
+switchport trunk native vlan 168
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/2
+
+description Port to computer serial
+
+switchport access vlan 168
+
+switchport trunk allowed vlan 168
+
+switchport trunk encapsulation dot1q
+
+switchport trunk native vlan 168
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/3
+
+!
+
+interface GigabitEthernet1/0/4
+
+description Reolink-NVR-VLAN30-10.30.0.20
+
+switchport access vlan 30
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/5
+
+description CAM-SW-Back-180-VLAN30
+
+switchport access vlan 30
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/6
+
+description CAM-NW-Front-180-VLAN30
+
+switchport access vlan 30
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/7
+
+description CAM-SE-Corner-180-VLAN30
+
+switchport access vlan 30
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/8
+
+description CAM-NE-Front-360-VLAN30
+
+switchport access vlan 30
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/9
+
+description CAM-Inside-Garage-VLAN30
+
+switchport access vlan 30
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/10
+
+description CAM-Tracks-360-NW-Garage-VLAN30
+
+switchport access vlan 30
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/11
+
+description CAM-Front-Garage-Center-VLAN30
+
+switchport access vlan 30
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/12
+
+description CAM-LPR-EmpireTech-Pending
+
+switchport access vlan 168
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/13
+
+description QNAP-NAS1-Top-Port
+
+switchport trunk allowed vlan 168
+
+switchport trunk encapsulation dot1q
+
+switchport trunk native vlan 168
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/14
+
+description QNAP-1
+
+switchport trunk allowed vlan 168
+
+switchport trunk encapsulation dot1q
+
+switchport trunk native vlan 168
+
+switchport mode trunk
+
+shutdown
+
+!
+
+interface GigabitEthernet1/0/15
+
+description QNAP-1
+
+switchport trunk allowed vlan 168
+
+switchport trunk encapsulation dot1q
+
+switchport trunk native vlan 168
+
+switchport mode trunk
+
+shutdown
+
+!
+
+interface GigabitEthernet1/0/16
+
+description QNAP-1
+
+switchport trunk allowed vlan 168
+
+switchport trunk encapsulation dot1q
+
+switchport trunk native vlan 168
+
+switchport mode trunk
+
+shutdown
+
+!
+
+interface GigabitEthernet1/0/17
+
+switchport access vlan 168
+
+switchport trunk allowed vlan 10
+
+switchport trunk encapsulation dot1q
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/18
+
+!
+
+interface GigabitEthernet1/0/19
+
+!
+
+interface GigabitEthernet1/0/20
+
+description Curtis connection
+
+switchport access vlan 168
+
+!
+
+interface GigabitEthernet1/0/21
+
+description ACCESS-SW-01-UPLINK-TEMP-Fa0/24
+
+switchport trunk allowed vlan 20,30,40,168
+
+switchport trunk encapsulation dot1q
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/22
+
+description ACCESS-SW-02-UPLINK-TEMP-Fa0/24
+
+switchport trunk allowed vlan 20,30,40,168
+
+switchport trunk encapsulation dot1q
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/23
+
+description ACCESS-SW-03-UPLINK-TEMP-Fa0/24
+
+switchport trunk allowed vlan 20,30,40,168
+
+switchport trunk encapsulation dot1q
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/24
+
+description UNUSED-Available
+
+switchport access vlan 168
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/25
+
+description ACCESS-SW-04-UPLINK-TEMP-Fa0/24
+
+switchport trunk allowed vlan 20,30,40,168
+
+switchport trunk encapsulation dot1q
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/26
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/27
+
+description R4-UPLINK-192.168.168.4
+
+switchport access vlan 168
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/28
+
+description SVR2-ESXi2-Mgmt-192.168.168.16
+
+switchport trunk allowed vlan 168
+
+switchport trunk encapsulation dot1q
+
+switchport trunk native vlan 168
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/29
+
+description SVR1-ESXi1-Mgmt-192.168.168.15
+
+switchport trunk allowed vlan 168
+
+switchport trunk encapsulation dot1q
+
+switchport trunk native vlan 168
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/30
+
+description SVR2-ESXi2-VM-NIC4
+
+switchport trunk allowed vlan 168
+
+switchport trunk encapsulation dot1q
+
+switchport trunk native vlan 168
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/31
+
+!
+
+interface GigabitEthernet1/0/32
+
+!
+
+interface GigabitEthernet1/0/33
+
+!
+
+interface GigabitEthernet1/0/34
+
+description Connect to Computer
+
+switchport trunk encapsulation dot1q
+
+switchport trunk native vlan 168
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/35
+
+description SVR1-iDRAC-192.168.168.10
+
+switchport access vlan 168
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/36
+
+description SVR2-iDRAC-192.168.168.11
+
+switchport access vlan 168
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/37
+
+description QNAP-NAS2-Po2-Link1
+
+switchport trunk allowed vlan 168
+
+switchport trunk encapsulation dot1q
+
+switchport trunk native vlan 168
+
+switchport mode trunk
+
+channel-group 2 mode active
+
+!
+
+interface GigabitEthernet1/0/38
+
+description QNAP-NAS2-Po2-Link2
+
+switchport trunk allowed vlan 168
+
+switchport trunk encapsulation dot1q
+
+switchport trunk native vlan 168
+
+switchport mode trunk
+
+channel-group 2 mode active
+
+!
+
+interface GigabitEthernet1/0/39
+
+description R1-UPLINK-192.168.168.2
+
+switchport access vlan 168
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/40
+
+description R3-UPLINK-192.168.168.3
+
+switchport access vlan 168
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/41
+
+description SVR-NIC-192.168.168.107
+
+switchport access vlan 168
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/42
+
+description SVR2-ESXi2-vSwitch0-Uplink1
+
+switchport access vlan 168
+
+switchport trunk allowed vlan 20,30,40,168
+
+switchport trunk encapsulation dot1q
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/43
+
+description SVR2-ESXi2-vSwitch0-Uplink2
+
+switchport access vlan 168
+
+switchport trunk allowed vlan 20,30,40,168
+
+switchport trunk encapsulation dot1q
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/44
+
+description SVR1-Slot2-Port3-192.168.168.104
+
+switchport trunk encapsulation dot1q
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/45
+
+description SVR1-Slot2-Port2-192.168.168.103
+
+switchport trunk encapsulation dot1q
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/46
+
+description SVR-NIC3-192.168.168.102
+
+switchport access vlan 168
+
+switchport mode access
+
+!
+
+interface GigabitEthernet1/0/47
+
+description SVR1-Slot2-Port1-192.168.168.100
+
+switchport trunk encapsulation dot1q
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/0/48
+
+description SVR1-Slot2-Port4-Unused
+
+switchport trunk encapsulation dot1q
+
+switchport mode trunk
+
+!
+
+interface GigabitEthernet1/1/1
+
+!
+
+interface GigabitEthernet1/1/2
+
+!
+
+interface GigabitEthernet1/1/3
+
+!
+
+interface GigabitEthernet1/1/4
+
+!
+
+interface TenGigabitEthernet1/1/1
+
+!
+
+interface TenGigabitEthernet1/1/2
+
+!
+
+interface Vlan1
+
+no ip address
+
+!
+
+interface Vlan20
+
+description Servers
+
+ip address 10.20.0.1 255.255.255.0
+
+!
+
+interface Vlan30
+
+description Cameras
+
+ip address 10.30.0.1 255.255.255.0
+
+ip access-group VLAN30-ACCESS in
+
+!
+
+interface Vlan40
+
+description Storage
+
+ip address 10.40.0.1 255.255.255.0
+
+!
+
+interface Vlan168
+
+description management
+
+ip address 192.168.168.1 255.255.255.0
+
+!
+
+router ospf 1
+
+router-id 168.168.168.1
+
+passive-interface Vlan20
+
+passive-interface Vlan30
+
+passive-interface Vlan40
+
+network 192.168.168.0 0.0.0.255 area 0
+
+!
+
+ip default-gateway 192.168.168.168
+
+ip forward-protocol nd
+
+no ip http server
+
+no ip http secure-server
+
+!
+
+ip route 0.0.0.0 0.0.0.0 192.168.168.168
+
+ip ssh time-out 60
+
+ip ssh version 2
+
+!
+
+ip access-list extended VLAN30-ACCESS
+
+remark Allow management PC to reach NVR
+
+permit ip host 192.168.168.100 host 10.30.0.20
+
+remark Allow cameras to send traffic out (return traffic)
+
+permit ip 10.30.0.0 0.0.0.255 any
+
+remark Block all other VLAN 168 traffic from reaching cameras
+
+deny ip 192.168.168.0 0.0.0.255 10.30.0.0 0.0.0.255
+
+remark Permit everything else
+
+permit ip any any
+
+!
+
+!
+
+snmp-server community <REDACTED> RO
+
+snmp-server location Home Lab
+
+snmp-server contact curtis@homelab.local
+
+!
+
+!
+
+banner motd ^C
+
+********************************************************************
+
+* AUTHORIZED ACCESS ONLY *
+
+* Unauthorized access is prohibited and monitored. *
+
+* Disconnect immediately if you are not an authorized user. *
+
+********************************************************************
+
+^C
+
+!
+
+line con 0
+
+exec-timeout 60 0
+
+logging synchronous
+
+line vty 0 4
+
+exec-timeout 60 0
+
+logging synchronous
+
+transport input ssh
+
+line vty 5 15
+
+exec-timeout 60 0
+
+logging synchronous
+
+transport input ssh
+
+!
+
+ntp server 192.168.168.168
+
+!
+
+end
+

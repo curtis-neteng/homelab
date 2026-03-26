@@ -1,0 +1,360 @@
+! ============================================================
+! Device: Edge Router (Cisco 1921)
+! Lab: Home Lab Network Engineering
+! Owner: Curtis | CCNA
+! Date: March 2026
+!
+! NOTE: This config has been sanitized for public repository.
+! Credentials, SNMP community strings, and WAN IPs have been
+! replaced with <REDACTED> or x.x.x.x placeholders.
+! ============================================================
+!
+edge-rtr#
+
+Building configuration...
+
+Current configuration : 3634 bytes
+
+!
+
+! Last configuration change at 17:16:48 CDT Mon Mar 23 2026 by curtis
+
+! NVRAM config last updated at 17:16:50 CDT Mon Mar 23 2026 by curtis
+
+! NVRAM config last updated at 17:16:50 CDT Mon Mar 23 2026 by curtis
+
+version 15.2
+
+service timestamps debug datetime msec
+
+service timestamps log datetime msec
+
+service password-encryption
+
+!
+
+hostname edge-rtr
+
+!
+
+boot-start-marker
+
+boot-end-marker
+
+!
+
+!
+
+enable secret 4 <REDACTED-HASH>
+
+!
+
+aaa new-model
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+aaa session-id common
+
+clock timezone CST -6 0
+
+clock summer-time CDT recurring
+
+!
+
+ip cef
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+no ip domain lookup
+
+ip domain name curtis.com
+
+no ipv6 cef
+
+!
+
+multilink bundle-name authenticated
+
+!
+
+!
+
+!
+
+license udi pid CISCO1921/K9 sn FTX172886S9
+
+!
+
+!
+
+username curtis privilege 15 secret 4
+AsxxEf5pJYEV4oXooEjKNCdr9FuG4fLO4rkcK.BTKXY
+
+!
+
+redundancy
+
+!
+
+!
+
+!
+
+!
+
+!
+
+ip ssh time-out 60
+
+ip ssh version 2
+
+lldp run
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+interface Embedded-Service-Engine0/0
+
+no ip address
+
+shutdown
+
+!
+
+interface GigabitEthernet0/0
+
+ip address x.x.x.x 255.255.255.0
+
+ip access-group BLOCK-INBOUND-WAN in
+
+ip nat outside
+
+ip virtual-reassembly in
+
+duplex auto
+
+speed auto
+
+!
+
+interface GigabitEthernet0/1
+
+ip address 192.168.168.168 255.255.255.0
+
+ip nat inside
+
+ip virtual-reassembly in
+
+duplex auto
+
+speed auto
+
+!
+
+interface GigabitEthernet0/1.10
+
+encapsulation dot1Q 10
+
+ip address 10.0.0.1 255.255.255.0
+
+ip nat inside
+
+ip virtual-reassembly in
+
+!
+
+ip forward-protocol nd
+
+!
+
+no ip http server
+
+no ip http secure-server
+
+!
+
+ip nat pool pub-nat x.x.x.x x.x.x.x netmask 255.255.255.0
+
+ip nat inside source list 1 pool pub-nat overload
+
+ip nat inside source static 192.168.168.100 x.x.x.x
+
+ip nat inside source static 10.30.0.20 x.x.x.x
+
+ip route 0.0.0.0 0.0.0.0 x.x.x.x
+
+ip route 2.2.2.2 255.255.255.255 192.168.168.2
+
+ip route 3.3.3.3 255.255.255.255 192.168.168.2
+
+ip route 4.4.4.4 255.255.255.255 192.168.168.2
+
+ip route 10.1.12.0 255.255.255.252 192.168.168.2
+
+ip route 10.1.13.0 255.255.255.252 192.168.168.2
+
+ip route 10.1.14.0 255.255.255.252 192.168.168.2
+
+ip route 10.20.0.0 255.255.255.0 192.168.168.1
+
+ip route 10.30.0.0 255.255.255.0 192.168.168.1
+
+ip route 10.40.0.0 255.255.255.0 192.168.168.1
+
+!
+
+ip access-list extended BLOCK-INBOUND-WAN
+
+remark Permit inbound RDP to static NAT hosts
+
+permit tcp any host x.x.x.x eq 3389
+
+permit tcp any host x.x.x.x eq 3389
+
+permit tcp any host x.x.x.x eq www
+
+permit tcp any host x.x.x.x eq 443
+
+permit tcp any host x.x.x.x eq 8080
+
+remark Block RFC 1918 spoofed source addresses
+
+deny ip 10.0.0.0 0.255.255.255 any
+
+deny ip 172.16.0.0 0.15.255.255 any
+
+deny ip 192.168.0.0 0.0.255.255 any
+
+remark Block loopback spoofing
+
+deny ip 127.0.0.0 0.255.255.255 any
+
+remark Block IANA reserved
+
+deny ip 0.0.0.0 0.255.255.255 any
+
+remark Permit everything else
+
+permit ip any any
+
+!
+
+access-list 1 permit 192.168.168.0 0.0.0.255
+
+access-list 1 permit 10.0.0.0 0.0.0.255
+
+access-list 1 permit 10.30.0.0 0.0.0.255
+
+access-list 1 permit 10.20.0.0 0.0.0.255
+
+access-list 1 permit 10.40.0.0 0.0.0.255
+
+!
+
+!
+
+snmp-server community <REDACTED> RO
+
+snmp-server location Home Lab
+
+snmp-server contact curtis@homelab.local
+
+snmp-server enable traps entity-sensor threshold
+
+!
+
+!
+
+!
+
+control-plane
+
+!
+
+!
+
+!
+
+line con 0
+
+exec-timeout 60 0
+
+logging synchronous
+
+line aux 0
+
+line 2
+
+no activation-character
+
+no exec
+
+transport preferred none
+
+transport input all
+
+transport output pad telnet rlogin lapb-ta mop udptn v120 ssh
+
+stopbits 1
+
+line vty 0 4
+
+exec-timeout 60 0
+
+logging synchronous
+
+transport input ssh
+
+!
+
+scheduler allocate 20000 1000
+
+ntp server 216.239.35.0
+
+ntp server 216.239.35.4
+
+ntp server pool.ntp.org
+
+!
+
+end
+
+edge-rtr#
+
