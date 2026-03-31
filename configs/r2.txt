@@ -1,0 +1,449 @@
+! ============================================================
+! Device: R2 (Cisco 2811) - BGP AS2
+! Lab: Home Lab Network Engineering
+! Owner: Curtis | CCNA
+! Date: March 2026
+!
+! NOTE: This config has been sanitized for public repository.
+! Credentials, SNMP community strings, and WAN IPs have been
+! replaced with <REDACTED> or x.x.x.x placeholders.
+! ============================================================
+!
+R2#show run
+
+Building configuration...
+
+Current configuration : 3705 bytes
+
+!
+
+! Last configuration change at 01:00:16 UTC Tue Mar 24 2026 by curtis
+
+! NVRAM config last updated at 01:00:19 UTC Tue Mar 24 2026 by curtis
+
+! NVRAM config last updated at 01:00:19 UTC Tue Mar 24 2026 by curtis
+
+version 15.1
+
+service timestamps debug datetime msec
+
+service timestamps log datetime msec
+
+service password-encryption
+
+!
+
+hostname R2
+
+!
+
+boot-start-marker
+
+boot-end-marker
+
+!
+
+!
+
+no logging console
+
+logging monitor errors
+
+enable secret 5 <REDACTED-HASH>
+
+!
+
+aaa new-model
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+aaa session-id common
+
+!
+
+!
+
+dot11 syslog
+
+no ip source-route
+
+!
+
+!
+
+ip cef
+
+!
+
+!
+
+!
+
+no ip domain lookup
+
+ip domain name homelab.local
+
+ipv6 unicast-routing
+
+ipv6 cef
+
+!
+
+multilink bundle-name authenticated
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+voice-card 0
+
+!
+
+crypto pki token default removal timeout 0
+
+!
+
+!
+
+!
+
+!
+
+license udi pid CISCO2811 sn FCZ092672TK
+
+username curtis privilege 15 secret 5 <REDACTED-HASH>
+
+!
+
+redundancy
+
+!
+
+!
+
+ip ssh time-out 60
+
+ip ssh version 2
+
+!
+
+!
+
+crypto isakmp policy 10
+
+encr aes 256
+
+hash md5
+
+authentication pre-share
+
+crypto isakmp key BNLcal2814! address 0.0.0.0 0.0.0.0
+
+!
+
+!
+
+crypto ipsec transform-set R2-Transform esp-aes 256
+
+!
+
+crypto ipsec profile DMVPN
+
+set transform-set R2-Transform
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+!
+
+interface Loopback0
+
+ip address 2.2.2.2 255.255.255.255
+
+!
+
+interface Loopback1
+
+ip address 172.16.2.1 255.255.255.0
+
+!
+
+interface Tunnel0
+
+ip address 10.10.10.2 255.255.255.0
+
+no ip redirects
+
+ip mtu 1416
+
+ip nhrp map 10.10.10.1 1.1.1.1
+
+ip nhrp map multicast 1.1.1.1
+
+ip nhrp network-id 1
+
+ip nhrp nhs 10.10.10.1
+
+tunnel source Loopback0
+
+tunnel mode gre multipoint
+
+tunnel protection ipsec profile DMVPN
+
+!
+
+interface FastEthernet0/0
+
+description SW2 Fa0/24
+
+no ip address
+
+shutdown
+
+duplex auto
+
+speed auto
+
+!
+
+interface FastEthernet0/1
+
+description SW1 Fa0/22
+
+ip address 172.31.101.5 255.255.255.0
+
+duplex auto
+
+speed auto
+
+!
+
+interface FastEthernet0/1.1
+
+description R2-R3-R4 Spoke
+
+encapsulation dot1Q 501
+
+ip address 10.1.1.12 255.255.255.0
+
+!
+
+interface FastEthernet0/1.2
+
+description R1 Hub
+
+encapsulation dot1Q 500
+
+ip address 10.0.0.12 255.255.255.0
+
+shutdown
+
+!
+
+interface Serial0/0/0
+
+description R1 S0/0/0
+
+ip address 10.1.12.2 255.255.255.252
+
+ipv6 address 2000:0:0:1::/64 eui-64
+
+ipv6 rip RIPng enable
+
+!
+
+interface Serial0/0/1
+
+description R3 S0/0/1
+
+no ip address
+
+ipv6 address 2000:0:0:4::/64 eui-64
+
+ipv6 rip RIPng enable
+
+clock rate 125000
+
+!
+
+!
+
+router eigrp 90
+
+network 10.1.12.0 0.0.0.3
+
+network 10.10.10.0 0.0.0.255
+
+network 172.16.2.0 0.0.0.255
+
+!
+
+router ospf 1
+
+router-id 2.2.2.2
+
+passive-interface FastEthernet0/0
+
+network 2.2.2.2 0.0.0.0 area 0
+
+network 10.1.12.0 0.0.0.3 area 0
+
+!
+
+router bgp 2
+
+bgp router-id 2.2.2.2
+
+bgp log-neighbor-changes
+
+network 2.2.2.2 mask 255.255.255.255
+
+network 10.1.12.0 mask 255.255.255.252
+
+neighbor 10.1.12.1 remote-as 1
+
+!
+
+ip forward-protocol nd
+
+no ip http server
+
+no ip http secure-server
+
+!
+
+!
+
+ip route 10.20.0.0 255.255.255.0 192.168.168.1
+
+ip route 16.16.16.16 255.255.255.255 10.1.1.1
+
+!
+
+ipv6 router rip RIPng
+
+!
+
+!
+
+!
+
+!
+
+!
+
+snmp-server community <REDACTED> RO
+
+snmp-server location Home Lab
+
+snmp-server contact curtis@homelab.local
+
+!
+
+!
+
+!
+
+!
+
+control-plane
+
+!
+
+!
+
+!
+
+!
+
+mgcp profile default
+
+!
+
+!
+
+!
+
+!
+
+!
+
+banner motd ^C
+
+********************************************************************
+
+* AUTHORIZED ACCESS ONLY *
+
+* Unauthorized access is prohibited and monitored. *
+
+* Disconnect immediately if you are not an authorized user. *
+
+********************************************************************
+
+^C
+
+!
+
+line con 0
+
+exec-timeout 5 0
+
+logging synchronous
+
+line aux 0
+
+line vty 0 4
+
+exec-timeout 5 0
+
+logging synchronous
+
+transport input ssh
+
+!
+
+scheduler allocate 20000 1000
+
+ntp server 192.168.168.168
+
+end
+
